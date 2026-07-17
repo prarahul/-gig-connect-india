@@ -10,7 +10,7 @@ import { logger } from "./lib/logger";
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const publicDistDir = path.resolve(currentDir, "../../gig-connect-india/dist/public");
 const publicIndexFile = path.join(publicDistDir, "index.html");
-const adminDistDir = path.resolve(currentDir, "../../admin-portal/dist");
+const adminDistDir = path.resolve(currentDir, "../../admin-portal/dist/public");
 const adminIndexFile = path.join(adminDistDir, "index.html");
 
 const app: Express = express();
