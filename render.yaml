@@ -8,6 +8,7 @@ services:
     runtime: node
     plan: free
     rootDir: .
+    healthCheckPath: /api/healthz
     buildCommand: PORT=10000 BASE_PATH=/ corepack pnpm --filter @workspace/gig-connect-india run build && PORT=10001 BASE_PATH=/admin/ corepack pnpm --filter @workspace/admin-portal run build && corepack pnpm --filter @workspace/api-server run build
     startCommand: corepack pnpm --filter @workspace/api-server run start
     autoDeployTrigger: commit
