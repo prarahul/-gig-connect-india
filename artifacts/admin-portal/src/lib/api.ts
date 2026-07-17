@@ -24,12 +24,12 @@ export async function checkSession(): Promise<boolean> {
 export async function login(
   username: string,
   password: string
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; step?: "otp" | "authenticated"; warning?: string } | { ok: false; error: string }> {
   const r = await apiFetch("/admin/login", {
     method: "POST",
     body: JSON.stringify({ username, password }),
   });
-  if (r.ok) return { ok: true };
+  if (r.ok) return r.json();
   const d = await r.json().catch(() => ({}));
   return { ok: false, error: d.error ?? "Login failed" };
 }

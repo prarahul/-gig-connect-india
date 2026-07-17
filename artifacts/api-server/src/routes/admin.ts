@@ -53,11 +53,23 @@ router.post("/admin/login", async (req, res): Promise<void> => {
     attempts: 0,
   };
 
+  const fallbackAuthenticate = (warning: string) => {
+    pendingOtp = null;
+    (req as any).session.adminLoggedIn = true;
+    res.json({ step: "authenticated", warning });
+  };
+
+  if (!process.env["RESEND_API_KEY"]) {
+    console.warn("[admin] RESEND_API_KEY not set — skipping OTP email and authenticating directly");
+    fallbackAuthenticate("OTP email is not configured on the server.");
+    return;
+  }
+
   try {
     await sendOtpEmail(otp);
   } catch (err) {
     console.error("[admin] Failed to send OTP email:", err);
-    res.status(500).json({ error: "Failed to send OTP email. Please try again." });
+    fallbackAuthenticate("OTP email could not be sent, so login was completed without OTP.");
     return;
   }
 

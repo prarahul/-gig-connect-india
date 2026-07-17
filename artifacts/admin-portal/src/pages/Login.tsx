@@ -38,6 +38,11 @@ export default function Login({ onSuccess }: LoginProps) {
     try {
       const result = await login(username, password);
       if (result.ok) {
+        if (result.step === "authenticated") {
+          onSuccess();
+          return;
+        }
+
         setStep("otp");
       } else {
         setPwError(result.error);
