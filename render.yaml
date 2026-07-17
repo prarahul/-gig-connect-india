@@ -10,6 +10,7 @@ services:
     rootDir: .
     healthCheckPath: /api/healthz
     buildCommand: PORT=10000 BASE_PATH=/ corepack pnpm --filter @workspace/gig-connect-india run build && PORT=10001 BASE_PATH=/admin/ corepack pnpm --filter @workspace/admin-portal run build && corepack pnpm --filter @workspace/api-server run build
+    preDeployCommand: corepack pnpm --filter @workspace/db run push-force
     startCommand: corepack pnpm --filter @workspace/api-server run start
     autoDeployTrigger: commit
     envVars:
@@ -26,6 +27,6 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: NOTIFY_EMAIL
-        value: rahulpraskt@gmail.com
+        value: prathamskt@gmail.com
       - key: FROM_EMAIL
         value: onboarding@resend.dev
