@@ -62,4 +62,17 @@ app.get(/^(?!\/api(?:\/|$)).*/, (_req, res) => {
   res.sendFile(publicIndexFile);
 });
 
+app.use((err: unknown, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  logger.error(
+    {
+      err,
+      method: req.method,
+      path: req.path,
+    },
+    "unhandled api error",
+  );
+
+  res.status(500).json({ error: "Internal server error" });
+});
+
 export default app;
