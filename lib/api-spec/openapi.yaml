@@ -1,0 +1,289 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Gig Connect India API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: workers
+    description: Worker registration and management
+  - name: contact
+    description: Contact form submissions
+  - name: stats
+    description: Community statistics
+  - name: admin
+    description: Admin operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /workers/register:
+    post:
+      operationId: registerWorker
+      tags: [workers]
+      summary: Register a new gig worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerRegistrationInput"
+      responses:
+        "201":
+          description: Worker registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Worker already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workers:
+    get:
+      operationId: listWorkers
+      tags: [workers]
+      summary: List all registered workers (admin)
+      responses:
+        "200":
+          description: List of workers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Worker"
+                  total:
+                    type: integer
+                required: [workers, total]
+
+  /workers/export:
+    get:
+      operationId: exportWorkersExcel
+      tags: [admin]
+      summary: Export all workers as Excel file
+      responses:
+        "200":
+          description: Excel file download
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit a contact form message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Message submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessage"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /contact/messages:
+    get:
+      operationId: listContactMessages
+      tags: [admin]
+      summary: List all contact messages (admin)
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ContactMessage"
+                  total:
+                    type: integer
+                required: [messages, total]
+
+  /stats:
+    get:
+      operationId: getCommunityStats
+      tags: [stats]
+      summary: Get community statistics
+      responses:
+        "200":
+          description: Community stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunityStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    WorkerRegistrationInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 15
+        email:
+          type: string
+          maxLength: 254
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        workType:
+          type: string
+          enum: [delivery, ride_sharing, domestic, construction, freelance, other]
+        platform:
+          type: string
+          maxLength: 100
+          description: Platform they work on (e.g. Swiggy, Ola, Urban Company)
+        message:
+          type: string
+          maxLength: 500
+      required: [name, phone, city, state, workType]
+
+    Worker:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        workType:
+          type: string
+        platform:
+          type: string
+        message:
+          type: string
+        joinedAt:
+          type: string
+          format: date-time
+      required: [id, name, phone, city, state, workType, joinedAt]
+
+    ContactInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        email:
+          type: string
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 15
+        subject:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+          minLength: 10
+          maxLength: 1000
+      required: [name, email, subject, message]
+
+    ContactMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+      required: [id, name, email, subject, message, submittedAt]
+
+    CommunityStats:
+      type: object
+      properties:
+        workersConnected:
+          type: integer
+        cities:
+          type: integer
+        welfarePartners:
+          type: integer
+        eventsOrganized:
+          type: integer
+      required: [workersConnected, cities, welfarePartners, eventsOrganized]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+      required: [error]

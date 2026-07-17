@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Gig Connect India"
+version = "1.0.0"
+id = "artifacts/gig-connect-india"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25074
+
+[services.development]
+run = "pnpm --filter @workspace/gig-connect-india run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/gig-connect-india", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/gig-connect-india/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25074"
+BASE_PATH = "/"
